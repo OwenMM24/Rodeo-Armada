@@ -1,0 +1,197 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+
+public class Gun : MonoBehaviour
+{
+
+    //public PlayerControl playerControl;
+
+
+    //bullets
+
+
+    //1 = pistol
+    //2 = shotgun 
+    //3 = lobber
+    //4 = machine
+    public int weaponEquip = 1;
+
+    //shot cooldown
+    public float timeBetweenShooting;
+
+    //checks for rapid fire
+    public bool allowButtonHold;
+
+    //checks if player is currently shooting
+    public bool shooting;
+
+    //if player is ready to shoot next shot
+    public bool readyToShoot;
+
+    //where bullets come from
+
+    public bool allowInvoke = true;
+
+
+    //MACHINE GUN
+    //checks if the machine gun is currently shooting
+    public bool machineShooting = false;
+    //how much time machine gun will fire for
+    public float shootingTime;
+    //about of time machine gun has charged
+    public float gunChargeTime;
+    //once the gun has finished charging and the charge time is converted into shooting time, this variable confirms that the conversion has happened
+    public bool setFireTime = false;
+    //makes sure machine gun has at least a little charge
+    public bool hasCharged = false;
+    //cool down time between bullets while the gun is firing
+    public float machineCoolDown = 0.3f;
+
+    private void Awake()
+    {
+        //player is ready to shoot when the game starts
+        readyToShoot = true;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        /* if(Input.GetKeyDown(KeyCode.Space))
+             Debug.Log("down");
+         if (Input.GetKey(KeyCode.Space))
+             Debug.Log("holding");
+         if (Input.GetKeyUp(KeyCode.Space))
+             Debug.Log("release");*/
+       /* if (Input.GetKey(KeyCode.Space) == false)
+            Debug.Log("release");*/
+
+            //isGrounded = playerControl.isGrounded;
+            MyInput();
+        if (weaponEquip == 1)
+        {
+            allowButtonHold = false;
+            timeBetweenShooting = .03f;
+        }
+        else if (weaponEquip == 2)
+        {
+            allowButtonHold = true;
+            timeBetweenShooting = .5f;
+        }
+        else if (weaponEquip == 3)
+        {
+            allowButtonHold = true;
+            timeBetweenShooting = 1f;
+        }
+        else if (weaponEquip == 4)
+        {
+            allowButtonHold = true;
+            timeBetweenShooting = .05f;
+        }
+    }
+
+    private void MyInput()
+    {
+        //checks if rapid fire is true
+        if (allowButtonHold == true)
+            shooting = Input.GetKey(KeyCode.Space);
+        else
+            shooting = Input.GetKeyDown(KeyCode.Space);
+
+        //calls shoot if ready to start creatinig bullets
+        if (readyToShoot == true && shooting == true && weaponEquip != 4)
+            Shoot();
+
+
+        if (weaponEquip == 4)
+            machineFireMethod();
+
+
+    }
+
+    private void Shoot()
+    {
+        //if a shot has just been fired there is a cooldown
+        readyToShoot = false;
+
+        //creates a pistol bullet and gives it force
+        if (weaponEquip == 1)
+        {
+            //sets bullet spawn point and rotation and creates bullet
+            Debug.Log("BANG!");
+        }
+
+        //creates shotgun bullets and gives them force
+        else if (weaponEquip == 2)
+        {
+            //sets bullet spawn point and rotation and creates bullet 3 times
+            Debug.Log("BANG!");
+        }
+
+        else if (weaponEquip == 3)
+        {
+            //sets bullet spawn point and rotation and creates bullet 3 times
+            Debug.Log("BANG!");
+        }
+
+        if (allowInvoke == true)
+        {
+            //adds a delay between shots
+            Invoke("ResetShot", timeBetweenShooting);
+            allowInvoke = false;
+        }
+    }
+
+    //method for machine gun fire specifically
+    public void machineFireMethod()
+    {
+        //making sure the machine gun is able to be charged
+        if (shooting == true && shootingTime <= 0)
+        {
+            //charging machine gun
+            gunChargeTime += Time.deltaTime;
+        }
+
+        else
+        {
+            if (gunChargeTime >= 0.3)
+                hasCharged = true;
+
+            machineShooting = true;
+            if (gunChargeTime > 3.0)
+                gunChargeTime = 3.0f;
+            if (setFireTime == false && hasCharged == true)
+            {
+                shootingTime = gunChargeTime * 1.2f;
+                gunChargeTime = 0f;
+                setFireTime = true;          
+            }
+        }
+
+        if (machineShooting == true && setFireTime == true)
+        {
+            shootingTime -= Time.deltaTime;
+            machineCoolDown -= Time.deltaTime;
+
+            if (machineCoolDown <= 0)
+            {
+                machineCoolDown = .03f;
+                Debug.Log("Bang!");
+            }
+        }
+
+        if (shootingTime <= 0)
+        {
+            machineShooting = false;
+            setFireTime = false;
+            hasCharged = false;
+        }
+    }
+
+    private void ResetShot()
+    {
+        readyToShoot = true;
+        allowInvoke = true;
+    }
+}
